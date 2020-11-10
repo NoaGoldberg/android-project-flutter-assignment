@@ -5,8 +5,6 @@ import 'package:provider/provider.dart';
 import 'login_page.dart';
 import 'user_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
 
 
 void main() {
@@ -50,12 +48,15 @@ class Splash extends StatelessWidget {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ChangeNotifierProvider<UserRepository>(
+        create: (_) => UserRepository.instance(),
+    child: MaterialApp(
       title: 'Startup Name Generator',
       theme: ThemeData(
         primaryColor: Colors.red,
       ),
       home: RandomWords(),
+    )
     );
   }
 }
@@ -69,46 +70,13 @@ class _RandomWordsState extends State<RandomWords> {
   final List<WordPair> _suggestions = <WordPair>[];
   final TextStyle _biggerFont = const TextStyle(fontSize: 18);
 
-  // Future<List<WordPair>> getWordPairs(String groupId) async {
-  //   var document =
-  //   FirebaseFirestore.instance.collection("Users").doc(groupId).snapshots();
-  //   return await document((doc) {
-  //     // return [WordPair(doc.data()["likes"][0], "haha")];
-  //     return doc.data()["likes"].map<WordPair>((e) => WordPair(e.split(",")[0], e.split(",")[1])).toList();
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
-    // return StreamBuilder<QueryDocumentSnapshot>(
-    //     stream: _getData(user),
-    //     builder: (BuildContext context,
-    //         AsyncSnapshot<QueryDocumentSnapshot> snapshot) {
-    return ChangeNotifierProvider<UserRepository>(
-      create: (_) => UserRepository.instance(),
-      child: Consumer<UserRepository>(
+    return  Consumer<UserRepository>(
           builder: (context, UserRepository user, _) {
             return Scaffold(
               appBar: AppBar(
-                title: /*StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance.collection("Users").doc(user.user.uid).snapshots(),
-              builder:
-              (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-
-              if (snapshot.hasError) {
-              return Text("${snapshot.error.toString()}", style:  TextStyle(fontSize: 6),);
-              }
-
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Text("loading");
-              }
-              Map<String, dynamic> data = snapshot.data.data();
-              return Text("Test: ${data['likes'][1]}");
-
-
-
-              },
-              ),*/ Text('Startup Name Generator, ${user.saved.length}'),
+                title: Text('Startup Name Generator'),
                 actions: [
                   IconButton(icon: Icon(Icons.favorite), onPressed: _pushSaved),
                   IconButton(icon: user.status != Status.Authenticated ? Icon(
@@ -123,8 +91,7 @@ class _RandomWordsState extends State<RandomWords> {
               body: _buildSuggestions(),
             );
           }
-      ),
-    );
+          );
     // });
   }
 
@@ -132,154 +99,107 @@ class _RandomWordsState extends State<RandomWords> {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return ChangeNotifierProvider<UserRepository>(
-            create: (_) => UserRepository.instance(),
-            child: Consumer<UserRepository>(
-              builder: (context, UserRepository user, _) {
-                switch (user.status) {
-                  case Status.Uninitialized:
-                    return Splash();
-                  case Status.Unauthenticated:
-                  case Status.Authenticating:
-                    return LoginPage();
-                  case Status.Authenticated:
-                    Navigator.of(context).pop();
-                }
-                return RandomWords();
-              },
-            ),
+          return Consumer<UserRepository>(
+            builder: (context, UserRepository user, _) {
+              switch (user.status) {
+                case Status.Uninitialized:
+                  return Splash();
+                case Status.Unauthenticated:
+                case Status.Authenticating:
+                  return LoginPage();
+                case Status.Authenticated:
+                  Navigator.of(context).pop();
+              }
+              return RandomWords();
+            },
           );
-        }, // ...to here.
+        }// ...to here.
       ),
     );
   }
 
-  Future<void> _pushSaved() async {
-    // UserRepository loginState = Provider.of(context, listen:false);
+  void _pushSaved() {
     Navigator.of(context).push(
         MaterialPageRoute<void>(
             builder: (BuildContext context) {
-              return ChangeNotifierProvider<UserRepository>(
-                  create: (_) => UserRepository.instance(),
-                  child: Consumer<UserRepository>(
-                      builder: (context, UserRepository user, _) {
-                        return StreamBuilder<DocumentSnapshot>(
-                            stream: user.status != Status.Authenticated
-                                ? null
-                                : FirebaseFirestore.instance.collection("Users")
-                                .doc(user.user.uid)
-                                .snapshots(),
-                            //getWordPairs(user.user.uid), // TODO: handle not auth!!!!
-                            builder: (BuildContext context,
-                                AsyncSnapshot<DocumentSnapshot> snapshot) {
-                              if (snapshot.hasError) {
-                                return Text("${snapshot.error.toString()}",
-                                  style: TextStyle(fontSize: 16),);
-                              }
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              final _favorites = user.status ==
-                                  Status.Authenticated ?
-                              snapshot.data.data()["likes"]
-                                  .map<WordPair>((e) =>
-                                  WordPair(e.split(",")[0], e.split(",")[1]))
-                                  .toList() //snapshot.data; //[WordPair("blaaa", "blu")]
-                                  : user.saved;
-                              final tiles = _favorites.map<Widget>(
-                                    (WordPair pair) {
-                                  return ListTile(
-                                    title: Text(
-                                      pair.asPascalCase,
-                                      style: _biggerFont,
-                                    ),
-                                    trailing: Builder(
-                                      builder: (context) =>
-                                          IconButton(
-                                              icon: Icon(
-                                                Icons.delete,
-                                                color: Colors.red,
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  user.removePair(pair);
-                                                });
-                                              }
-                                            //    final snackBar = SnackBar(
-                                            //      content: Text(
-                                            //          "Deletion is not implemented yet"),
-                                            //      action: SnackBarAction(
-                                            //        label: 'OK',
-                                            //        textColor: Colors.red,
-                                            //        onPressed: () {},
-                                            //      ),
-                                            //    );
-                                            //    Scaffold.of(context).showSnackBar(
-                                            //        snackBar);
-                                            // }
-
-
+              return Consumer<UserRepository>(
+                  builder: (context, user, _) {
+                    return StreamBuilder<DocumentSnapshot>(
+                        stream: user.status != Status.Authenticated
+                            ? null
+                            : FirebaseFirestore.instance.collection("Users")
+                            .doc(user.user.uid)
+                            .snapshots(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<DocumentSnapshot> snapshot) {
+                          if (snapshot.hasError) {
+                            return Text("${snapshot.error.toString()}",
+                              style: TextStyle(fontSize: 16),);
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                                child: CircularProgressIndicator());
+                          }
+                          if (user.status == Status.Authenticated) {
+                            user.addAll(snapshot.data.data()["likes"]
+                                .map<WordPair>((e) =>
+                                WordPair(e.split(",")[0], e.split(",")[1]))
+                                .toList());
+                          }
+                          final tiles = user.saved.map(
+                                (WordPair pair) {
+                              return ListTile(
+                                title: Text(
+                                  pair.asPascalCase,
+                                  style: _biggerFont,
+                                ),
+                                trailing: Builder(
+                                  builder: (context) =>
+                                      IconButton(
+                                          icon: Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
                                           ),
-                                    ),
-                                  );
-                                },
-                              ).toList();
-
-                              final divided = ListTile.divideTiles(
-                                context: context,
-                                tiles: tiles,
-                              ).toList();
-
-                              return Scaffold(
-                                appBar: AppBar(
-                                  title: Text('Saved Suggestions'),
+                                          onPressed: () {
+                                            user.removePair(pair);
+                                          }
+                                      ),
                                 ),
-                                body: ListView.builder(
-                                  itemBuilder: (context, item) {
-                                    return divided[item];
-                                  },
-                                  itemCount: divided.length,
-                                ),
-                                // body: ListView(children: divided),
                               );
-                            });
-                      }
-                  )
+                            },
+                          ).toList();
+
+                          final divided = ListTile.divideTiles(
+                            context: context,
+                            tiles: tiles,
+                          ).toList();
+
+                          return Scaffold(
+                            appBar: AppBar(
+                              title: Text('Saved Suggestions'),
+                            ),
+                            body: ListView(children: divided),
+                          );
+                        });
+                  }
               );
             }
-        )
+
+    )
     );
   }
 
   Widget _buildSuggestions() {
     return ListView.builder(
         padding: const EdgeInsets.all(16),
-        // The itemBuilder callback is called once per suggested
-        // word pairing, and places each suggestion into a ListTile
-        // row. For even rows, the function adds a ListTile row for
-        // the word pairing. For odd rows, the function adds a
-        // Divider widget to visually separate the entries. Note that
-        // the divider may be difficult to see on smaller devices.
         itemBuilder: (BuildContext _context, int i) {
-          // Add a one-pixel-high divider widget before each row
-          // in the ListView.
           if (i.isOdd) {
             return Divider();
           }
 
-          // The syntax "i ~/ 2" divides i by 2 and returns an
-          // integer result.
-          // For example: 1, 2, 3, 4, 5 becomes 0, 1, 1, 2, 2.
-          // This calculates the actual number of word pairings
-          // in the ListView,minus the divider widgets.
           final int index = i ~/ 2;
-          // If you've reached the end of the available word
-          // pairings...
           if (index >= _suggestions.length) {
-            // ...then generate 10 more and add them to the
-            // suggestions list.
             _suggestions.addAll(generateWordPairs().take(10));
           }
           return _buildRow(_suggestions[index]);
@@ -288,12 +208,9 @@ class _RandomWordsState extends State<RandomWords> {
   }
 
   Widget _buildRow(WordPair pair) {
-
-    return ChangeNotifierProvider<UserRepository>(
-        create: (_) => UserRepository.instance(),
-    child: Consumer<UserRepository>(
-        builder: (context, UserRepository user, _) {
-          final alreadySaved = user.alreadySaved(pair);
+    return Consumer<UserRepository>(
+        builder: (context, user, _) {
+          final alreadySaved = user.saved.contains(pair);
           return ListTile(
             title: Text(
               pair.asPascalCase,
@@ -304,17 +221,14 @@ class _RandomWordsState extends State<RandomWords> {
               color: alreadySaved ? Colors.red : null,
             ),
             onTap: () {
-              setState(() {
-                if (user.alreadySaved(pair)) {
-                    user.removePair(pair);
-                } else {
-                  user.addPair(pair);
-                }
-              });
+              if (alreadySaved) {
+                user.removePair(pair);
+              } else {
+                user.addPair(pair);
+              }
             },
           );
         }
-    )
     );
   }
 }

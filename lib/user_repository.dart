@@ -29,6 +29,7 @@ class UserRepository with ChangeNotifier {
       _status = Status.Authenticating;
       notifyListeners();
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+      _saved.forEach((element) {addPair(element); });
       return true;
     } catch (e) {
       _status = Status.Unauthenticated;
@@ -56,13 +57,26 @@ class UserRepository with ChangeNotifier {
     }
     notifyListeners();
   }
-  bool alreadySaved (WordPair pair) {
-    return _saved.contains(pair);
-  }
 
-  Future<IconData> getIcon(pair) async{
-  return this.alreadySaved(pair) ? Icons.favorite : Icons.favorite_border;
-}
+  // Future<void> updateSaved() async {
+  //   try {
+  //     await FirebaseFirestore.instance.collection("Users").doc(_user.uid).get().then((snapshot) {
+  //       _saved.addAll(snapshot.data()["likes"]
+  //                     .map<WordPair>((e) =>
+  //                     WordPair(e.split(",")[0], e.split(",")[1]))
+  //                     .toList());
+  //     });
+  //   } catch (e) {
+  //     // Do nothing, not connected or whatever
+  //   }
+  // }
+  Future addAll(List<WordPair> toAdd) async {
+    if (_status == Status.Authenticated) {
+      _saved.clear();
+      _saved.addAll(toAdd);
+    }
+    notifyListeners();
+  }
 
   Future signOut() async {
     _auth.signOut();
