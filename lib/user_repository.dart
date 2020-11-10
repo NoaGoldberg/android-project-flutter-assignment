@@ -14,6 +14,7 @@ class UserRepository with ChangeNotifier {
   FirebaseAuth _auth;
   User _user;
   Status _status = Status.Uninitialized;
+  Set<WordPair> _saved = Set<WordPair>();
 
   UserRepository.instance() : _auth = FirebaseAuth.instance {
     _auth.authStateChanges().listen(_authStateChanges);
@@ -21,6 +22,7 @@ class UserRepository with ChangeNotifier {
 
   Status get status => _status;
   User get user => _user;
+  Set<WordPair> get saved => _saved;
 
   Future<bool> signIn(String email, String password) async {
     try {
@@ -33,6 +35,26 @@ class UserRepository with ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  Future<void> removePair(WordPair pair) async {
+    _saved.remove(pair);
+    if (_status == Status.Authenticated) {
+      FirebaseFirestore.instance.collection("Users")
+          .doc(_user.uid)
+          .update(
+          {"likes": FieldValue.arrayRemove([pair.join(",")])});
+    }
+    notifyListeners();
+  }
+  Future<void> addPair(WordPair pair) async {
+    _saved.add(pair);
+    if (_status == Status.Authenticated) {
+      FirebaseFirestore.instance.collection("Users").doc(
+          _user.uid).update(
+          {"likes": FieldValue.arrayUnion([pair.join(",")])});
+    }
+    notifyListeners();
   }
 
   Future signOut() async {

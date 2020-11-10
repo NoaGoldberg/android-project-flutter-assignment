@@ -68,7 +68,6 @@ class RandomWords extends StatefulWidget {
 class _RandomWordsState extends State<RandomWords> {
   final List<WordPair> _suggestions = <WordPair>[];
   final TextStyle _biggerFont = const TextStyle(fontSize: 18);
-  final _saved = Set<WordPair>();
 
   // Future<List<WordPair>> getWordPairs(String groupId) async {
   //   var document =
@@ -188,7 +187,7 @@ class _RandomWordsState extends State<RandomWords> {
                                   .map<WordPair>((e) =>
                                   WordPair(e.split(",")[0], e.split(",")[1]))
                                   .toList() //snapshot.data; //[WordPair("blaaa", "blu")]
-                                  : _saved;
+                                  : user.saved;
                               final tiles = _favorites.map<Widget>(
                                     (WordPair pair) {
                                   return ListTile(
@@ -205,21 +204,7 @@ class _RandomWordsState extends State<RandomWords> {
                                               ),
                                               onPressed: () {
                                                 setState(() {
-                                                  if (user.status ==
-                                                      Status.Authenticated) {
-                                                    // remove from DB
-                                                    FirebaseFirestore.instance
-                                                        .collection("Users")
-                                                        .doc(user.user.uid)
-                                                        .update({
-                                                      "likes": FieldValue
-                                                          .arrayRemove(
-                                                          [pair.join(",")])
-                                                    });
-                                                  } else {
-                                                    // TODO: figure how to update UI!
-                                                  }
-                                                  _saved.remove(pair);
+                                                  user.removePair(pair);
                                                 });
                                               }
                                             //    final snackBar = SnackBar(
@@ -303,9 +288,10 @@ class _RandomWordsState extends State<RandomWords> {
   }
 
   Widget _buildRow(WordPair pair) {
-    final alreadySaved = _saved.contains(pair);
+
     return Consumer<UserRepository>(
         builder: (context, UserRepository user, _) {
+          final alreadySaved = user.saved.contains(pair);
           return ListTile(
             title: Text(
               pair.asPascalCase,
@@ -318,20 +304,9 @@ class _RandomWordsState extends State<RandomWords> {
             onTap: () {
               setState(() {
                 if (alreadySaved) {
-                  if (user.status == Status.Authenticated) {
-                    FirebaseFirestore.instance.collection("Users")
-                        .doc(user.user.uid)
-                        .update(
-                        {"likes": FieldValue.arrayRemove([pair.join(",")])});
-                  }
-                  _saved.remove(pair);
+                    user.removePair(pair);
                 } else {
-                  _saved.add(pair);
-                  if (user.status == Status.Authenticated) {
-                    FirebaseFirestore.instance.collection("Users").doc(
-                        user.user.uid).update(
-                        {"likes": FieldValue.arrayUnion([pair.join(",")])});
-                  }
+                  user.addPair(pair);
                 }
               });
             },
