@@ -48,7 +48,7 @@ class UserRepository with ChangeNotifier {
     notifyListeners();
   }
   Future<void> addPair(WordPair pair) async {
-    _saved.add(pair);
+      _saved.add(pair);
     if (_status == Status.Authenticated) {
       FirebaseFirestore.instance.collection("Users").doc(
           _user.uid).update(
@@ -56,6 +56,13 @@ class UserRepository with ChangeNotifier {
     }
     notifyListeners();
   }
+  bool alreadySaved (WordPair pair) {
+    return _saved.contains(pair);
+  }
+
+  Future<IconData> getIcon(pair) async{
+  return this.alreadySaved(pair) ? Icons.favorite : Icons.favorite_border;
+}
 
   Future signOut() async {
     _auth.signOut();

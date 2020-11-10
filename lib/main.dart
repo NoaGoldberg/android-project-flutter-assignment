@@ -108,7 +108,7 @@ class _RandomWordsState extends State<RandomWords> {
 
 
               },
-              ),*/ Text('Startup Name Generator'),
+              ),*/ Text('Startup Name Generator, ${user.saved.length}'),
                 actions: [
                   IconButton(icon: Icon(Icons.favorite), onPressed: _pushSaved),
                   IconButton(icon: user.status != Status.Authenticated ? Icon(
@@ -289,9 +289,11 @@ class _RandomWordsState extends State<RandomWords> {
 
   Widget _buildRow(WordPair pair) {
 
-    return Consumer<UserRepository>(
+    return ChangeNotifierProvider<UserRepository>(
+        create: (_) => UserRepository.instance(),
+    child: Consumer<UserRepository>(
         builder: (context, UserRepository user, _) {
-          final alreadySaved = user.saved.contains(pair);
+          final alreadySaved = user.alreadySaved(pair);
           return ListTile(
             title: Text(
               pair.asPascalCase,
@@ -303,7 +305,7 @@ class _RandomWordsState extends State<RandomWords> {
             ),
             onTap: () {
               setState(() {
-                if (alreadySaved) {
+                if (user.alreadySaved(pair)) {
                     user.removePair(pair);
                 } else {
                   user.addPair(pair);
@@ -312,6 +314,7 @@ class _RandomWordsState extends State<RandomWords> {
             },
           );
         }
+    )
     );
   }
 }
