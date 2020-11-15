@@ -116,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                             showModalBottomSheet(
                               context: context,
                               builder: (context) => Container(
-                                height: 300,
+                                height: 200,
                                 padding: EdgeInsets.all(10),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,

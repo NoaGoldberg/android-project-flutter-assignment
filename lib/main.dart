@@ -105,15 +105,21 @@ class _RandomWordsState extends State<RandomWords> {
                           contentPadding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
                         leading: CircleAvatar(
                             radius: 50,
-                            backgroundImage: NetworkImage("https://cc-prod.scene7.com/is/image/CCProdAuthor/Flower-photography_P1_900x420?\$pjpeg\$&jpegSize=200&wid=900"),
+                            backgroundImage: NetworkImage("https://cc-prod.scene7.com/is/image/CCProdAuthor/Flower-photography_P1_900x420?\$pjpeg\$&jpegSize=200&wid=900"), // TODO: THIS
                         ),
-                        title: Text('${user.user.email}', style: TextStyle(fontSize: 30.0)),
-                        subtitle: RaisedButton(
-                            onPressed: ()  {},
+                        title: Text('${user.user.email}', style: TextStyle(fontSize: 26.0)),
+                        subtitle: Container(
+                          height: 30,
+                        margin: const EdgeInsets.only(top: 10.0),
+                        child: RaisedButton(
+                            onPressed: ()  {
+                              // TODO: THIS
+                            },
                              child: Text("change avatar"),
                           color: Colors.teal,
                           textColor: Colors.white,
                         ),
+                        )
                       ),
                     ),
                     heightBehavior: SnappingSheetHeight.fit(),
