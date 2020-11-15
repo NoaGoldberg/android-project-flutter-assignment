@@ -4,6 +4,7 @@ import 'package:english_words/english_words.dart';
 import 'package:provider/provider.dart';
 import 'login_page.dart';
 import 'user_repository.dart';
+import 'listview_example.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
 
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.red,
       ),
       home: RandomWords(),
+      // home: ListViewSnapSheetExample(),
     )
     );
   }
@@ -70,6 +72,7 @@ class RandomWords extends StatefulWidget {
 class _RandomWordsState extends State<RandomWords> {
   final List<WordPair> _suggestions = <WordPair>[];
   final TextStyle _biggerFont = const TextStyle(fontSize: 18);
+  var _controller = SnappingSheetController();
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +92,42 @@ class _RandomWordsState extends State<RandomWords> {
                               .signOut()),
                 ],
               ),
-              body: _buildSuggestions(),
+              body: (user.status == Status.Authenticated) ? SnappingSheet(
+                snappingSheetController: _controller,
+                snapPositions: const [
+                  SnapPosition(positionPixel: 0.0, snappingCurve: Curves.elasticOut, snappingDuration: Duration(milliseconds: 300)),
+                  SnapPosition(positionFactor: 0.3, snappingCurve: Curves.elasticOut, snappingDuration: Duration(milliseconds: 300)),
+                ],
+                sheetBelow: SnappingSheetContent(
+                    child: Container(
+                      color: Colors.white,
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage("https://cc-prod.scene7.com/is/image/CCProdAuthor/Flower-photography_P1_900x420?\$pjpeg\$&jpegSize=200&wid=900"),
+                        ),
+                        title: Text('Flower'),
+                      ),
+                    ),
+                    heightBehavior: SnappingSheetHeight.fit(),
+              ),
+                grabbingHeight: MediaQuery.of(context).padding.bottom + 60,
+              grabbing: Container(
+                color: Colors.blueGrey[200],
+                child: ListTile(
+                    title: Text("Welcome back, ${user.user.email}"),
+                    trailing: Icon(Icons.keyboard_arrow_up),
+                  onTap: () {
+                      if(_controller.snapPositions.first != _controller.currentSnapPosition) {
+                        _controller.snapToPosition(_controller.snapPositions.first);
+                      }
+                      else {
+                        _controller.snapToPosition(_controller.snapPositions.last);
+                      }
+                  },
+                ),
+              ),
+              child: _buildSuggestions(),
+            ) : _buildSuggestions(),
             );
           }
           );
