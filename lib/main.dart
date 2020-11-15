@@ -102,10 +102,18 @@ class _RandomWordsState extends State<RandomWords> {
                     child: Container(
                       color: Colors.white,
                       child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
                         leading: CircleAvatar(
-                          backgroundImage: NetworkImage("https://cc-prod.scene7.com/is/image/CCProdAuthor/Flower-photography_P1_900x420?\$pjpeg\$&jpegSize=200&wid=900"),
+                            radius: 50,
+                            backgroundImage: NetworkImage("https://cc-prod.scene7.com/is/image/CCProdAuthor/Flower-photography_P1_900x420?\$pjpeg\$&jpegSize=200&wid=900"),
                         ),
-                        title: Text('Flower'),
+                        title: Text('${user.user.email}', style: TextStyle(fontSize: 30.0)),
+                        subtitle: RaisedButton(
+                            onPressed: ()  {},
+                             child: Text("change avatar"),
+                          color: Colors.teal,
+                          textColor: Colors.white,
+                        ),
                       ),
                     ),
                     heightBehavior: SnappingSheetHeight.fit(),

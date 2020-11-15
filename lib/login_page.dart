@@ -11,6 +11,7 @@ class _LoginPageState extends State<LoginPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   TextEditingController _email;
   TextEditingController _password;
+  TextEditingController _password2;
   final _formKey = GlobalKey<FormState>();
   final _key = GlobalKey<ScaffoldState>();
 
@@ -19,6 +20,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     _email = TextEditingController(text: "");
     _password = TextEditingController(text: "");
+    _password2 = TextEditingController(text: "");
   }
 
   @override
@@ -29,9 +31,16 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         title: Text("Login"),
       ),
-      body: Form(
+      body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+              child: Text("Welcome to Startup Names Generator, please log in bellow", textAlign: TextAlign.left,  style: TextStyle(fontSize: 16))
+          ),
+      Form(
         key: _formKey,
-        child: Center(
+        //child: Center(
           child: ListView(
             shrinkWrap: true,
             children: <Widget>[
@@ -67,9 +76,13 @@ class _LoginPageState extends State<LoginPage> {
                   ? Center(child: CircularProgressIndicator())
                   : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Material(
-                        elevation: 5.0,
-                        borderRadius: BorderRadius.circular(30.0),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 340,
+                          height: 40,
+                          child: Material(
+                            borderRadius: BorderRadius.circular(20.0),
                         color: Colors.red,
                         child: MaterialButton(
                           onPressed: () async {
@@ -82,18 +95,88 @@ class _LoginPageState extends State<LoginPage> {
                             }
                           },
                           child: Text(
-                            "Sign In",
+                            "Log In",
                             style: style.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
                           ),
                         ),
+
+                        )
+                          ),
+                           Container(
+                            width: 500,
+                             height: 40,
+                             margin: const EdgeInsets.all(8),
+                          child: Material(
+                            borderRadius: BorderRadius.circular(20.0),
+                            color: Colors.teal,
+                        child: MaterialButton(
+                          onPressed: () async {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (context) => Container(
+                                height: 300,
+                                padding: EdgeInsets.all(10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Center(
+                                        child: Text("Please confirm your password below:", style: TextStyle(fontSize: 18,))
+                                    ),
+                                    Divider(),
+                                    Text("Password", textAlign: TextAlign.left,  style: TextStyle(fontSize: 12, color: Colors.red)),
+                                TextFormField(
+                                  obscureText: true,
+                                  controller: _password2,
+                                  validator: (value) =>
+                                  (value.isEmpty) ? "Please Enter Password" : null,
+                                  style: style,
+                                ),
+                                    Center (
+                                        child: Container(
+                                            margin: EdgeInsets.all(16),
+                                      child: RaisedButton(
+                                        color: Colors.teal,
+                                          textColor: Colors.white,
+                                          onPressed: () {
+                                          // TODO: THIS
+                                          },
+                                        child: Text("Confirm"),
+                                        )
+                                        )
+                                    )
+                                  ],
+                                ),
+                              ),
+                            );
+                            // if (_formKey.currentState.validate()) {
+                            //   if (!await user.signIn(
+                            //       _email.text, _password.text))
+                            //     _key.currentState.showSnackBar(SnackBar(
+                            //       content: Text("There was an error logging into the app"),
+                            //     ));
+                            // }
+                          },
+                          child: Text(
+                            "New user? Click to sign up",
+                            style: style.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+
+                        ),
+                           ),
+                      ],
                       ),
                     ),
             ],
           ),
-        ),
+        //),
       ),
+      ]
+      )
     );
   }
 
