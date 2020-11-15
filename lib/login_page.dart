@@ -45,7 +45,8 @@ class _LoginPageState extends State<LoginPage> {
                   decoration: InputDecoration(
                       prefixIcon: Icon(Icons.email),
                       labelText: "Email",
-                      border: OutlineInputBorder()),
+                      border: OutlineInputBorder()
+                  ),
                 ),
               ),
               Padding(

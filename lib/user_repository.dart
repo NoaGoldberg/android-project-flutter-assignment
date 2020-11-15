@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -29,6 +28,12 @@ class UserRepository with ChangeNotifier {
       _status = Status.Authenticating;
       notifyListeners();
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+      DocumentSnapshot ds = await FirebaseFirestore.instance.collection("Users").doc(
+          _user.uid).get();
+      if (!ds.exists) {
+        FirebaseFirestore.instance.collection("Users").doc(_user.uid).set(
+            {'likes': new List<String>()});
+      }
       _saved.forEach((element) {addPair(element); });
       return true;
     } catch (e) {
@@ -58,18 +63,6 @@ class UserRepository with ChangeNotifier {
     notifyListeners();
   }
 
-  // Future<void> updateSaved() async {
-  //   try {
-  //     await FirebaseFirestore.instance.collection("Users").doc(_user.uid).get().then((snapshot) {
-  //       _saved.addAll(snapshot.data()["likes"]
-  //                     .map<WordPair>((e) =>
-  //                     WordPair(e.split(",")[0], e.split(",")[1]))
-  //                     .toList());
-  //     });
-  //   } catch (e) {
-  //     // Do nothing, not connected or whatever
-  //   }
-  // }
   Future addAll(List<WordPair> toAdd) async {
     if (_status == Status.Authenticated) {
       _saved.clear();
@@ -81,6 +74,7 @@ class UserRepository with ChangeNotifier {
   Future signOut() async {
     _auth.signOut();
     _status = Status.Unauthenticated;
+    _saved.clear();
     notifyListeners();
     return Future.delayed(Duration.zero);
   }

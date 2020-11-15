@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'login_page.dart';
 import 'user_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:snapping_sheet/snapping_sheet.dart';
 
 
 void main() {
@@ -185,8 +186,7 @@ class _RandomWordsState extends State<RandomWords> {
                   }
               );
             }
-
-    )
+        )
     );
   }
 
