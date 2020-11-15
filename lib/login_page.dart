@@ -115,22 +115,26 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: () async {
                             showModalBottomSheet(
                               context: context,
-                              builder: (context) => Container(
+                              builder: (context) => Padding(
+                              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                              child: Container(
                                 height: 200,
                                 padding: EdgeInsets.all(10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
+                                child: ListView(
+                                  // crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
                                     Center(
                                         child: Text("Please confirm your password below:", style: TextStyle(fontSize: 18,))
                                     ),
                                     Divider(),
                                     Text("Password", textAlign: TextAlign.left,  style: TextStyle(fontSize: 12, color: Colors.red)),
+
                                 TextFormField(
                                   obscureText: true,
                                   controller: _password2,
                                   validator: (value) =>
-                                  (value.isEmpty) ? "Please Enter Password" : null,
+                                  (false) ? "Passwords must match" : null,
+                                  // (value == _password.text) ? "Passwords must match" : null,
                                   style: style,
                                 ),
                                     Center (
@@ -140,7 +144,12 @@ class _LoginPageState extends State<LoginPage> {
                                         color: Colors.teal,
                                           textColor: Colors.white,
                                           onPressed: () {
-                                          // TODO: THIS
+                                              if (_formKey.currentState.validate()) {
+                                                _key.currentState.showSnackBar(SnackBar(
+                                                  content: Text("${_password2.text}, ${_password.text}"),
+                                                  // TODO: THIS
+                                                ));
+                                              }
                                           },
                                         child: Text("Confirm"),
                                         )
@@ -149,14 +158,8 @@ class _LoginPageState extends State<LoginPage> {
                                   ],
                                 ),
                               ),
+                              ),
                             );
-                            // if (_formKey.currentState.validate()) {
-                            //   if (!await user.signIn(
-                            //       _email.text, _password.text))
-                            //     _key.currentState.showSnackBar(SnackBar(
-                            //       content: Text("There was an error logging into the app"),
-                            //     ));
-                            // }
                           },
                           child: Text(
                             "New user? Click to sign up",
@@ -184,6 +187,7 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _password2.dispose();
     super.dispose();
   }
 }
