@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
@@ -6,6 +7,9 @@ import 'login_page.dart';
 import 'user_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:file_picker/file_picker.dart';
+
 
 
 void main() {
@@ -72,7 +76,14 @@ class _RandomWordsState extends State<RandomWords> {
   final List<WordPair> _suggestions = <WordPair>[];
   final TextStyle _biggerFont = const TextStyle(fontSize: 18);
   final _controller = SnappingSheetController();
-  String _imageUrl;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _getImageUrl("bla.png").then((value) => setState(() {
+  //     _imageUrl = value;
+  //   }));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -103,17 +114,39 @@ class _RandomWordsState extends State<RandomWords> {
                       color: Colors.white,
                       child: ListTile(
                           contentPadding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
-                        leading: CircleAvatar(
-                            radius: 50,
-                            backgroundImage: NetworkImage("https://cc-prod.scene7.com/is/image/CCProdAuthor/Flower-photography_P1_900x420?\$pjpeg\$&jpegSize=200&wid=900"), // TODO: THIS
+                        leading:
+                        user.imageUrl == null
+                            ? SizedBox(
+                            width: 60.0,
+                            height: 60.0,
+                            child: Center(child: CircularProgressIndicator()))
+                            : Image.network(
+                          user.imageUrl,
+                          height: 60.0,
+                          width: 60.0,
                         ),
+                        // CircleAvatar(
+                        //     radius: 50,
+                        //     backgroundImage: NetworkImage("https://cc-prod.scene7.com/is/image/CCProdAuthor/Flower-photography_P1_900x420?\$pjpeg\$&jpegSize=200&wid=900"), // TODO: THIS
+                        // ),
                         title: Text('${user.user.email}', style: TextStyle(fontSize: 26.0)),
                         subtitle: Container(
                           height: 30,
                         margin: const EdgeInsets.only(top: 10.0),
                         child: RaisedButton(
-                            onPressed: ()  {
-                              // TODO: THIS
+                            onPressed: () async {
+                              // Pick an image with the file_picker library
+                              FilePickerResult result = await FilePicker.platform
+                                  .pickFiles(type: FileType.image);
+
+                              if (result != null) {
+                              File file = File(result.files.single.path);
+                              setState(() {
+                              user.imageUrl = null;
+                              });
+                              user.imageUrl = await user.uploadNewImage(file, user.user.uid + ".png");
+                              setState(() {});
+                              }
                             },
                              child: Text("change avatar"),
                           color: Colors.teal,

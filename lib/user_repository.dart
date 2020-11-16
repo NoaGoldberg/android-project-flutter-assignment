@@ -1,11 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:english_words/english_words.dart';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:file_picker/file_picker.dart';
 
 enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated }
 
@@ -14,6 +16,20 @@ class UserRepository with ChangeNotifier {
   User _user;
   Status _status = Status.Uninitialized;
   Set<WordPair> _saved = Set<WordPair>();
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  String imageUrl;
+
+  Future<String> getImageUrl(String name) {
+    return _storage.ref('images').child(name).getDownloadURL();
+  }
+
+  Future<String> uploadNewImage(File file, String name) {
+    return _storage
+        .ref('images')
+        .child(name)
+        .putFile(file)
+        .then((snapshot) => snapshot.ref.getDownloadURL());
+  }
 
   UserRepository.instance() : _auth = FirebaseAuth.instance {
     _auth.authStateChanges().listen(_authStateChanges);
@@ -34,7 +50,13 @@ class UserRepository with ChangeNotifier {
         FirebaseFirestore.instance.collection("Users").doc(_user.uid).set(
             {'likes': new List<String>()});
       }
+      try {
+        await getImageUrl(_user.uid + ".png").then((value) => imageUrl = value);
+      } catch(e) {
+        imageUrl = null;
+      }
       _saved.forEach((element) {addPair(element); });
+      notifyListeners();
       return true;
     } catch (e) {
       _status = Status.Unauthenticated;
@@ -75,6 +97,7 @@ class UserRepository with ChangeNotifier {
     _auth.signOut();
     _status = Status.Unauthenticated;
     _saved.clear();
+    imageUrl = null;
     notifyListeners();
     return Future.delayed(Duration.zero);
   }
