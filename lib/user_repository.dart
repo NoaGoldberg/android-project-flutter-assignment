@@ -65,6 +65,17 @@ class UserRepository with ChangeNotifier {
     }
   }
 
+  Future<bool> signUp(String email, String password) async {
+    try {
+      _status = Status.Authenticating;
+      notifyListeners();
+      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+    } catch(e) {
+      return false;
+    }
+    return signIn(email, password);
+  }
+
   Future<void> removePair(WordPair pair) async {
     _saved.remove(pair);
     if (_status == Status.Authenticated) {

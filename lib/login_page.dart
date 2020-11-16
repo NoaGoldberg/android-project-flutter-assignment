@@ -143,14 +143,23 @@ class _LoginPageState extends State<LoginPage> {
                                       child: RaisedButton(
                                         color: Colors.teal,
                                           textColor: Colors.white,
-                                          onPressed: () {
-                                              if (_formKey.currentState.validate()) {
+                                          onPressed: () async {
+                                            if (_formKey.currentState.validate()) {
+                                              if (!await user.signUp(
+                                                  _email.text, _password.text))
                                                 _key.currentState.showSnackBar(SnackBar(
-                                                  content: Text("${_password2.text}, ${_password.text}"),
-                                                  // TODO: THIS
+                                                  content: Text("Couldn't sign up!"), // TODO: find out what goes here
                                                 ));
-                                              }
+                                            }
                                           },
+                                          // {
+                                          //     if (_formKey.currentState.validate()) {
+                                          //       _key.currentState.showSnackBar(SnackBar(
+                                          //         content: Text("${_password2.text}, ${_password.text}"),
+                                          //         // TODO: THIS
+                                          //       ));
+                                          //     }
+                                          // },
                                         child: Text("Confirm"),
                                         )
                                         )
