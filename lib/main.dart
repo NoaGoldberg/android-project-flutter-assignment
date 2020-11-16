@@ -94,8 +94,8 @@ class _RandomWordsState extends State<RandomWords> {
               body: (user.status == Status.Authenticated) ? SnappingSheet(
                 snappingSheetController: _controller,
                 snapPositions: const [
-                  SnapPosition(positionPixel: 0.0, snappingCurve: Curves.elasticOut, snappingDuration: Duration(milliseconds: 300)),
-                  SnapPosition(positionFactor: 0.3, snappingCurve: Curves.elasticOut, snappingDuration: Duration(milliseconds: 300)),
+                  SnapPosition(positionPixel: 0.0, snappingCurve: Curves.elasticOut, snappingDuration: Duration(milliseconds: 2000)),
+                  SnapPosition(positionFactor: 0.3, snappingCurve: Curves.elasticOut, snappingDuration: Duration(milliseconds: 2000)),
                 ],
                 sheetBelow: SnappingSheetContent(
                     child: Container(
@@ -191,7 +191,8 @@ class _RandomWordsState extends State<RandomWords> {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return Center(
-                                child: CircularProgressIndicator());
+                                child: CircularProgressIndicator()
+                            );
                           }
                           if (user.status == Status.Authenticated) {
                             user.addAll(snapshot.data.data()["likes"]
