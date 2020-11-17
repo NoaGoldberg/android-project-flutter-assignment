@@ -125,10 +125,6 @@ class _RandomWordsState extends State<RandomWords> {
                           height: 60.0,
                           width: 60.0,
                         ),
-                        // CircleAvatar(
-                        //     radius: 50,
-                        //     backgroundImage: NetworkImage("https://cc-prod.scene7.com/is/image/CCProdAuthor/Flower-photography_P1_900x420?\$pjpeg\$&jpegSize=200&wid=900"), // TODO: THIS
-                        // ),
                         title: Text('${user.user.email}', style: TextStyle(fontSize: 26.0)),
                         subtitle: Container(
                           height: 30,

@@ -7,7 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:file_picker/file_picker.dart';
 
 enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated }
 
@@ -67,13 +66,13 @@ class UserRepository with ChangeNotifier {
 
   Future<bool> signUp(String email, String password) async {
     try {
-      _status = Status.Authenticating;
-      notifyListeners();
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      _auth.createUserWithEmailAndPassword(email: email, password: password);
+      return await signIn(email, password);
     } catch(e) {
+      _status = Status.Unauthenticated;
+      notifyListeners();
       return false;
     }
-    return signIn(email, password);
   }
 
   Future<void> removePair(WordPair pair) async {
