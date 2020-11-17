@@ -217,12 +217,4 @@ class _LoginPageState extends State<LoginPage> {
       )
     );
   }
-
-  // @override
-  // void dispose() {
-  //   _email.dispose();
-  //   _password.dispose();
-  //   _password2.dispose();
-  //   super.dispose();
-  // }
 }
