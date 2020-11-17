@@ -52,7 +52,7 @@ class UserRepository with ChangeNotifier {
       try {
         await getImageUrl(_user.uid + ".png").then((value) => imageUrl = value);
       } catch(e) {
-        imageUrl = null;
+        await getImageUrl("default.png").then((value) => imageUrl = value);
       }
       _saved.forEach((element) {addPair(element); });
       notifyListeners();

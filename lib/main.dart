@@ -76,20 +76,14 @@ class _RandomWordsState extends State<RandomWords> {
   final List<WordPair> _suggestions = <WordPair>[];
   final TextStyle _biggerFont = const TextStyle(fontSize: 18);
   final _controller = SnappingSheetController();
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _getImageUrl("bla.png").then((value) => setState(() {
-  //     _imageUrl = value;
-  //   }));
-  // }
+  final _key = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return  Consumer<UserRepository>(
           builder: (context, UserRepository user, _) {
             return Scaffold(
+              key: _key,
               appBar: AppBar(
                 title: Text('Startup Name Generator'),
                 actions: [
@@ -120,10 +114,11 @@ class _RandomWordsState extends State<RandomWords> {
                             width: 60.0,
                             height: 60.0,
                             child: Center(child: CircularProgressIndicator()))
-                            : Image.network(
+                            : CircleAvatar(
+                          radius: 30,
+                            backgroundImage: NetworkImage(
                           user.imageUrl,
-                          height: 60.0,
-                          width: 60.0,
+                        )
                         ),
                         title: Text('${user.user.email}', style: TextStyle(fontSize: 26.0)),
                         subtitle: Container(
@@ -142,6 +137,13 @@ class _RandomWordsState extends State<RandomWords> {
                               });
                               user.imageUrl = await user.uploadNewImage(file, user.user.uid + ".png");
                               setState(() {});
+                              } else {
+                                _key.currentState.showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          "No image selected"), // TODO: find out what goes here
+                                    )
+                                );
                               }
                             },
                              child: Text("change avatar"),
